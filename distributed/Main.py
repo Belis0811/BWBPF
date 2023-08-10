@@ -3,6 +3,8 @@ import torch.optim as optim
 import torchvision
 import torchvision.transforms as transforms
 from sklearn.metrics import accuracy_score
+import matplotlib.pyplot as plt
+
 import ResNet
 # process data
 transform = transforms.Compose([
