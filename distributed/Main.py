@@ -6,6 +6,7 @@ from sklearn.metrics import accuracy_score
 import matplotlib.pyplot as plt
 
 import ResNet
+
 # process data
 transform = transforms.Compose([
     transforms.RandomHorizontalFlip(),
@@ -64,17 +65,16 @@ for epoch in range(num_epochs):
         optimizer_back.step()
 
         running_loss += loss_back.item()
-      # 计算平均损失
+
     avg_train_loss = running_loss / len(trainloader)
-    
-    # 记录每个 epoch 的训练损失
+
     train_losses.append(avg_train_loss)
 
     print(f"Epoch [{epoch + 1}/{num_epochs}], Loss: {running_loss / len(trainloader):.4f}")
 
 print("Training finished!")
 
-#test
+# test
 resnet34.eval()
 testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=transform)
 testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False)
@@ -94,7 +94,7 @@ with torch.no_grad():
 accuracy = accuracy_score(all_labels, all_predictions)
 print(f"Test Accuracy: {accuracy:.2f}")
 
-# 绘制学习曲线
+# plot learning curve
 plt.plot(train_losses, label="Train Loss")
 plt.xlabel("Epoch")
 plt.ylabel("Loss")
