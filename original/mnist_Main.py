@@ -43,10 +43,8 @@ for epoch in range(num_epochs):
         optimizer.step()
 
         running_loss += loss.item()
-    # 计算平均损失
     avg_train_loss = running_loss / len(trainloader)
 
-    # 记录每个 epoch 的训练损失
     train_losses.append(avg_train_loss)
 
     print(f"Epoch [{epoch + 1}/{num_epochs}], Loss: {running_loss / len(trainloader):.4f}")
@@ -73,7 +71,7 @@ with torch.no_grad():
 accuracy = accuracy_score(all_labels, all_predictions)
 print(f"Test Accuracy: {accuracy:.2f}")
 
-# 绘制学习曲线
+# plot the learning loss
 plt.plot(train_losses, label="Train Loss")
 plt.xlabel("Epoch")
 plt.ylabel("Loss")
