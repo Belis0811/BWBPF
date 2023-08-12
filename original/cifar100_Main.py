@@ -34,6 +34,7 @@ optimizer = optim.SGD(resnet34.parameters(), lr=0.001, momentum=0.9)  # update f
 criterion = torch.nn.CrossEntropyLoss()
 
 train_losses = []
+test_losses = []
 # train
 num_epochs = 200
 for epoch in range(num_epochs):
@@ -53,7 +54,7 @@ for epoch in range(num_epochs):
 
     train_losses.append(avg_train_loss)
 
-    print(f"Epoch [{epoch + 1}/{num_epochs}], Loss: {running_loss / len(trainloader):.4f}")
+    print(f"Epoch [{epoch + 1}/{num_epochs}], Loss: {avg_train_loss:.4f}")
 
     # test in every epoch
     resnet34.eval()
@@ -67,6 +68,7 @@ for epoch in range(num_epochs):
             test_running_loss += test_loss.item()
 
     avg_test_loss = test_running_loss / len(testloader)
+    test_losses.append(avg_test_loss)
     print(f"Epoch [{epoch + 1}/{num_epochs}], Test Loss: {avg_test_loss:.4f}")
 
 print("Training finished!")
@@ -95,3 +97,8 @@ plt.xlabel("Epoch")
 plt.ylabel("Loss")
 plt.legend()
 plt.show()
+
+plt.plot(test_losses, label="Test Loss")
+plt.xlabel("Epoch")
+plt.ylabel("Loss")
+plt.legend()
