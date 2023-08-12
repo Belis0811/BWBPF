@@ -5,17 +5,16 @@ import torchvision.transforms as transforms
 import matplotlib.pyplot as plt
 from sklearn.metrics import accuracy_score
 import ResNet
+
 # process data
 transform = transforms.Compose([
-    transforms.RandomHorizontalFlip(),
-    transforms.RandomCrop(32, padding=4),
     transforms.ToTensor(),
-    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    transforms.Lambda(lambda x: x.expand(3, -1, -1))  # Expand to 3 channels
 ])
 
-# load CIFAR_10
+# load MNIST
 batch_size = 64
-trainset = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=transform)
+trainset = torchvision.datasets.MNIST(root='./data', train=True, download=True, transform=transform)
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True)
 # init the model
 num_classes = 10
@@ -26,12 +25,11 @@ resnet34.to(device)
 # define optimizer and loss function
 optimizer = optim.SGD(resnet34.parameters(), lr=0.001, momentum=0.9)  # update first two layer
 
-
 criterion = torch.nn.CrossEntropyLoss()
 
 train_losses = []
 # train
-num_epochs = 150
+num_epochs = 20
 for epoch in range(num_epochs):
     resnet34.train()
     running_loss = 0.0
@@ -45,9 +43,9 @@ for epoch in range(num_epochs):
         optimizer.step()
 
         running_loss += loss.item()
-      # 计算平均损失
+    # 计算平均损失
     avg_train_loss = running_loss / len(trainloader)
-    
+
     # 记录每个 epoch 的训练损失
     train_losses.append(avg_train_loss)
 
@@ -55,9 +53,9 @@ for epoch in range(num_epochs):
 
 print("Training finished!")
 
-#test
+# test
 resnet34.eval()
-testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=transform)
+testset = torchvision.datasets.MNIST(root='./data', train=False, download=True, transform=transform)
 testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False)
 
 all_labels = []

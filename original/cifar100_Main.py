@@ -15,10 +15,10 @@ transform = transforms.Compose([
 
 # load CIFAR_10
 batch_size = 64
-trainset = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=transform)
+trainset = torchvision.datasets.CIFAR100(root='./data', train=True, download=True, transform=transform)
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True)
 # init the model
-num_classes = 10
+num_classes = 100
 resnet34 = ResNet.ResNet34(num_classes=num_classes)
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 resnet34.to(device)
@@ -31,7 +31,7 @@ criterion = torch.nn.CrossEntropyLoss()
 
 train_losses = []
 # train
-num_epochs = 150
+num_epochs = 200
 for epoch in range(num_epochs):
     resnet34.train()
     running_loss = 0.0
@@ -57,7 +57,7 @@ print("Training finished!")
 
 #test
 resnet34.eval()
-testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=transform)
+testset = torchvision.datasets.CIFAR100(root='./data', train=False, download=False, transform=transform)
 testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False)
 
 all_labels = []

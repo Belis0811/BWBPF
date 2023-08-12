@@ -44,7 +44,7 @@ criterion = torch.nn.CrossEntropyLoss()
 
 train_losses = []
 # train
-num_epochs = 10
+num_epochs = 150
 for epoch in range(num_epochs):
     resnet34.train()
     running_loss = 0.0
