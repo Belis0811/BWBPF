@@ -23,7 +23,7 @@ testset = torchvision.datasets.CIFAR100(root='./data', train=False, download=Fal
 testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False)
 
 # init the model
-num_classes = 200
+num_classes = 100
 resnet34 = ResNet.ResNet34(num_classes=num_classes)
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 resnet34.to(device)
