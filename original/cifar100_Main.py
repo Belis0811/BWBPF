@@ -26,9 +26,10 @@ num_classes = 200
 resnet34 = ResNet.ResNet34(num_classes=num_classes)
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 resnet34.to(device)
+weight_decay = 0.001
 
 # define optimizer and loss function
-optimizer = optim.SGD(resnet34.parameters(), lr=0.001, momentum=0.9)  # update first two layer
+optimizer = optim.SGD(resnet34.parameters(), lr=0.001, momentum=0.9,weight_decay=weight_decay)  # update first two layer
 
 
 criterion = torch.nn.CrossEntropyLoss()
