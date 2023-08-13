@@ -5,6 +5,7 @@ import torchvision.transforms as transforms
 import matplotlib.pyplot as plt
 from sklearn.metrics import accuracy_score
 import ResNet
+
 # process data
 transform = transforms.Compose([
     transforms.RandomHorizontalFlip(),
@@ -26,11 +27,18 @@ num_classes = 200
 resnet34 = ResNet.ResNet34(num_classes=num_classes)
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 resnet34.to(device)
-weight_decay = 0.001
+weight_decay = 0.005
 
 # define optimizer and loss function
-optimizer = optim.SGD(resnet34.parameters(), lr=0.001, momentum=0.9,weight_decay=weight_decay)  # update first two layer
-
+optimizer = optim.SGD([
+    {'params': resnet34.conv1.parameters()},
+    {'params': resnet34.bn1.parameters()},
+    {'params': resnet34.layer1.parameters()},
+    {'params': resnet34.layer2.parameters()},
+    {'params': resnet34.layer3.parameters()},
+    {'params': resnet34.layer4.parameters()},
+    {'params': resnet34.fc.parameters()}
+], lr=0.001, momentum=0.9, weight_decay=weight_decay)  # update first two layer
 
 criterion = torch.nn.CrossEntropyLoss()
 
@@ -74,7 +82,7 @@ for epoch in range(num_epochs):
 
 print("Training finished!")
 
-#test
+# test
 resnet34.eval()
 
 all_labels = []
