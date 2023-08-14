@@ -4,9 +4,6 @@ import torchvision
 import torchvision.transforms as transforms
 from sklearn.metrics import accuracy_score
 import matplotlib.pyplot as plt
-from torch.optim import lr_scheduler
-from torchvision.models import ResNet50_Weights
-import torchvision.models as models
 import ResNet
 
 # process data
@@ -24,7 +21,7 @@ trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuff
 # init the model
 num_classes = 10
 resnet50 = ResNet.ResNet50(num_classes=num_classes)
-
+'''
 weights = ResNet50_Weights.DEFAULT
 resnet50_pretrained = models.resnet50(weights=weights)
 pretrained_state_dict = resnet50_pretrained.state_dict()
@@ -36,30 +33,28 @@ pretrained_state_dict = {k: v for k, v in pretrained_state_dict.items() if k in 
 # Update model's state_dict
 model_state_dict.update(pretrained_state_dict)
 resnet50.load_state_dict(model_state_dict)
-
+'''
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 resnet50.to(device)
 weight_decay = 0.001
 
 # define optimizer and loss function
 optimizer_front = optim.SGD([
-    {'params': resnet50.conv1.parameters()},
-    {'params': resnet50.bn1.parameters()},
-    {'params': resnet50.layer1.parameters()},
-    {'params': resnet50.layer2.parameters()},
+    {'params': resnet50.model.conv1.parameters()},
+    {'params': resnet50.model.bn1.parameters()},
+    {'params': resnet50.model.layer1.parameters()},
+    {'params': resnet50.model.layer2.parameters()},
     {'params': resnet50.fc1.parameters()}
-], lr=0.1, momentum=0.9)  # update first two layer
+], lr=0.001, momentum=0.9)  # update first two layer
 
 optimizer_back = optim.SGD([
-    {'params': resnet50.layer3.parameters()},
-    {'params': resnet50.layer4.parameters()},
+    {'params': resnet50.model.layer3.parameters()},
+    {'params': resnet50.model.layer4.parameters()},
     {'params': resnet50.fc2.parameters()}
-], lr=0.1, momentum=0.9)  # update layer3 and 4
+], lr=0.001, momentum=0.9)  # update layer3 and 4
 
 criterion = torch.nn.CrossEntropyLoss()
-# Learning rate scheduler
-scheduler_front = lr_scheduler.StepLR(optimizer_front, step_size=50, gamma=0.1)
-scheduler_back = lr_scheduler.StepLR(optimizer_back, step_size=50, gamma=0.1)
+
 
 train_losses = []
 # train
@@ -82,9 +77,6 @@ for epoch in range(num_epochs):
 
         optimizer_front.step()
         optimizer_back.step()
-
-        scheduler_front.step()
-        scheduler_back.step()
 
         running_loss += loss_back.item()
 

@@ -7,8 +7,7 @@ from sklearn.metrics import accuracy_score
 from torchvision.models import ResNet50_Weights
 
 import ResNet
-import torchvision.models as models
-import torch.optim.lr_scheduler as lr_scheduler
+
 
 # process data
 transform = transforms.Compose([
@@ -30,35 +29,20 @@ testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle
 num_classes = 10
 resnet50 = ResNet.ResNet50(num_classes=num_classes)
 
-weights = ResNet50_Weights.DEFAULT
-resnet50_pretrained = models.resnet50(weights=weights)
-pretrained_state_dict = resnet50_pretrained.state_dict()
-
-# Remove keys not present in your custom ResNet state_dict
-model_state_dict = resnet50.state_dict()
-pretrained_state_dict = {k: v for k, v in pretrained_state_dict.items() if k in model_state_dict}
-
-# Update your model's state_dict
-model_state_dict.update(pretrained_state_dict)
-resnet50.load_state_dict(model_state_dict)
-
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 resnet50.to(device)
 weight_decay = 0.001
 
 # define optimizer and loss function
 optimizer = optim.SGD([
-    {'params': resnet50.conv1.parameters()},
-    {'params': resnet50.bn1.parameters()},
-    {'params': resnet50.layer1.parameters()},
-    {'params': resnet50.layer2.parameters()},
-    {'params': resnet50.layer3.parameters()},
-    {'params': resnet50.layer4.parameters()},
+    {'params': resnet50.model.conv1.parameters()},
+    {'params': resnet50.model.bn1.parameters()},
+    {'params': resnet50.model.layer1.parameters()},
+    {'params': resnet50.model.layer2.parameters()},
+    {'params': resnet50.model.layer3.parameters()},
+    {'params': resnet50.model.layer4.parameters()},
     {'params': resnet50.fc.parameters()}
-], lr=0.1, momentum=0.9, weight_decay=weight_decay)  # update first two layer
-
-# Learning rate scheduler
-scheduler = lr_scheduler.StepLR(optimizer, step_size=50, gamma=0.1)
+], lr=0.001, momentum=0.9, weight_decay=weight_decay)  # update first two layer
 
 criterion = torch.nn.CrossEntropyLoss()
 
@@ -80,7 +64,6 @@ for epoch in range(num_epochs):
 
         running_loss += loss.item()
     avg_train_loss = running_loss / len(trainloader)
-    scheduler.step()
     train_losses.append(avg_train_loss)
 
     print(f"Epoch [{epoch + 1}/{num_epochs}], Loss: {avg_train_loss:.4f}")

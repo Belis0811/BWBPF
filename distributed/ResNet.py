@@ -9,12 +9,14 @@ Reference:
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import torchvision.models as models
+from torchvision.models import ResNet50_Weights
 
 
 class BasicBlock(nn.Module):
     expansion = 1
 
-    def __init__(self, in_planes, planes, stride=1):
+    def __init__(self, in_planes, planes, stride=1,downsample = None):
         super(BasicBlock, self).__init__()
         self.conv1 = nn.Conv2d(
             in_planes, planes, kernel_size=3, stride=stride, padding=1, bias=False)
@@ -22,6 +24,7 @@ class BasicBlock(nn.Module):
         self.conv2 = nn.Conv2d(planes, planes, kernel_size=3,
                                stride=1, padding=1, bias=False)
         self.bn2 = nn.BatchNorm2d(planes)
+        self.downsample = downsample
 
         self.shortcut = nn.Sequential()
         if stride != 1 or in_planes != self.expansion * planes:
@@ -32,9 +35,13 @@ class BasicBlock(nn.Module):
             )
 
     def forward(self, x):
+        identity = x
         out = F.relu(self.bn1(self.conv1(x)))
         out = self.bn2(self.conv2(out))
-        out += self.shortcut(x)
+        if self.downsample is not None:
+            identity = self.downsample(x)
+
+        out += identity
         out = F.relu(out)
         return out
 
@@ -42,7 +49,7 @@ class BasicBlock(nn.Module):
 class Bottleneck(nn.Module):
     expansion = 4
 
-    def __init__(self, in_planes, planes, stride=1):
+    def __init__(self, in_planes, planes, stride=1, downsample = None):
         super(Bottleneck, self).__init__()
         self.conv1 = nn.Conv2d(in_planes, planes, kernel_size=1, bias=False)
         self.bn1 = nn.BatchNorm2d(planes)
@@ -54,6 +61,7 @@ class Bottleneck(nn.Module):
         self.bn3 = nn.BatchNorm2d(self.expansion * planes)
 
         self.shortcut = nn.Sequential()
+        self.downsample = downsample
         if stride != 1 or in_planes != self.expansion * planes:
             self.shortcut = nn.Sequential(
                 nn.Conv2d(in_planes, self.expansion * planes,
@@ -62,10 +70,13 @@ class Bottleneck(nn.Module):
             )
 
     def forward(self, x):
+        identity = x
         out = F.relu(self.bn1(self.conv1(x)))
         out = F.relu(self.bn2(self.conv2(out)))
         out = self.bn3(self.conv3(out))
-        out += self.shortcut(x)
+        if self.downsample is not None:
+            identity = self.downsample(x)
+        out += identity
         out = F.relu(out)
         return out
 
@@ -73,7 +84,8 @@ class Bottleneck(nn.Module):
 class ResNet(nn.Module):
     def __init__(self, block, num_blocks, num_classes=10):
         super(ResNet, self).__init__()
-        self.in_planes = 64
+        '''
+         self.in_planes = 64
 
         self.conv1 = nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3, bias=False)
         self.bn1 = nn.BatchNorm2d(64)
@@ -86,6 +98,13 @@ class ResNet(nn.Module):
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.fc1 = nn.Linear(128 * block.expansion, num_classes*100)
         self.fc2 = nn.Linear(512 * block.expansion, num_classes*100)
+        '''
+
+        self.model = models.resnet50(weights = ResNet50_Weights.DEFAULT)
+        self.model.avgpool = nn.AdaptiveAvgPool2d((1,1))
+        self.fc1 = nn.Linear(128 * block.expansion, num_classes * 100)
+        self.fc2 = nn.Linear(512 * block.expansion, num_classes * 100)
+
 
     def _make_layer(self, block, planes, num_blocks, stride):
         strides = [stride] + [1] * (num_blocks - 1)
@@ -96,22 +115,22 @@ class ResNet(nn.Module):
         return nn.Sequential(*layers)
 
     def forward(self, x):
-        x = self.conv1(x)
-        x = self.bn1(x)
-        x = self.relu(x)
-        x = self.maxpool(x)
+        x = self.model.conv1(x)
+        x = self.model.bn1(x)
+        x = self.model.relu(x)
+        x = self.model.maxpool(x)
 
-        x = self.layer1(x)
-        x = self.layer2(x)
+        x = self.model.layer1(x)
+        x = self.model.layer2(x)
         ex = x
-        ex = self.avgpool(ex)
+        ex = self.model.avgpool(ex)
         ex = torch.flatten(ex, 1)
         ex = self.fc1(ex)
 
-        x = self.layer3(x)
-        x = self.layer4(x)
+        x = self.model.layer3(x)
+        x = self.model.layer4(x)
 
-        x = self.avgpool(x)
+        x = self.model.avgpool(x)
         x = torch.flatten(x, 1)
         x = self.fc2(x)
 
