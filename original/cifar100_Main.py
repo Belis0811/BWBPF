@@ -5,6 +5,7 @@ import torchvision.transforms as transforms
 import matplotlib.pyplot as plt
 from sklearn.metrics import accuracy_score
 import ResNet
+import torchvision.models as models
 
 # process data
 transform = transforms.Compose([
@@ -23,21 +24,31 @@ testset = torchvision.datasets.CIFAR100(root='./data', train=False, download=Fal
 testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False)
 
 # init the model
-num_classes = 1003
-resnet34 = ResNet.ResNet50(num_classes=num_classes)
+num_classes = 100
+resnet50 = ResNet.ResNet50(num_classes=num_classes)
+
+# load pre-trained weights
+resnet50_pretrained = models.resnet50(pretrained=True)
+resnet50_state_dict = resnet50_pretrained.state_dict()
+
+# Filter out unnecessary keys
+filtered_dict = {k: v for k, v in resnet50_state_dict.items() if k in resnet50.state_dict()}
+
+# Update model's state dictionary with pre-trained weights
+resnet50.load_state_dict(filtered_dict, strict=False)
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-resnet34.to(device)
+resnet50.to(device)
 weight_decay = 0.01
 
 # define optimizer and loss function
 optimizer = optim.SGD([
-    {'params': resnet34.conv1.parameters()},
-    {'params': resnet34.bn1.parameters()},
-    {'params': resnet34.layer1.parameters()},
-    {'params': resnet34.layer2.parameters()},
-    {'params': resnet34.layer3.parameters()},
-    {'params': resnet34.layer4.parameters()},
-    {'params': resnet34.fc.parameters()}
+    {'params': resnet50.conv1.parameters()},
+    {'params': resnet50.bn1.parameters()},
+    {'params': resnet50.layer1.parameters()},
+    {'params': resnet50.layer2.parameters()},
+    {'params': resnet50.layer3.parameters()},
+    {'params': resnet50.layer4.parameters()},
+    {'params': resnet50.fc.parameters()}
 ], lr=0.001, momentum=0.9, weight_decay=weight_decay)  # update first two layer
 
 criterion = torch.nn.CrossEntropyLoss()
@@ -47,13 +58,13 @@ test_losses = []
 # train
 num_epochs = 200
 for epoch in range(num_epochs):
-    resnet34.train()
+    resnet50.train()
     running_loss = 0.0
     for inputs, labels in trainloader:
         inputs, labels = inputs.to(device), labels.to(device)
 
         optimizer.zero_grad()
-        outputs = resnet34(inputs)
+        outputs = resnet50(inputs)
         loss = criterion(outputs, labels)
         loss.backward()
         optimizer.step()
@@ -66,13 +77,13 @@ for epoch in range(num_epochs):
     print(f"Epoch [{epoch + 1}/{num_epochs}], Loss: {avg_train_loss:.4f}")
 
     # test in every epoch
-    resnet34.eval()
+    resnet50.eval()
     test_running_loss = 0.0
     with torch.no_grad():
         for test_inputs, test_labels in testloader:
             test_inputs, test_labels = test_inputs.to(device), test_labels.to(device)
 
-            test_outputs = resnet34(test_inputs)
+            test_outputs = resnet50(test_inputs)
             test_loss = criterion(test_outputs, test_labels)
             test_running_loss += test_loss.item()
 
@@ -83,7 +94,7 @@ for epoch in range(num_epochs):
 print("Training finished!")
 
 # test
-resnet34.eval()
+resnet50.eval()
 
 all_labels = []
 all_predictions = []
@@ -91,7 +102,7 @@ with torch.no_grad():
     for inputs, labels in testloader:
         inputs, labels = inputs.to(device), labels.to(device)
 
-        outputs = resnet34(inputs)
+        outputs = resnet50(inputs)
         _, predicted = torch.max(outputs, 1)
 
         all_labels.extend(labels.cpu().numpy())
