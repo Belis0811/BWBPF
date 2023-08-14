@@ -42,24 +42,29 @@ resnet50.to(device)
 weight_decay = 0.001
 
 # define optimizer and loss function
-optimizer_front = optim.SGD([
+optimizer_1 = optim.SGD([
     {'params': resnet50.conv1.parameters()},
     {'params': resnet50.bn1.parameters()},
     {'params': resnet50.layer1.parameters()},
-    {'params': resnet50.layer2.parameters()},
     {'params': resnet50.fc1.parameters()}
-], lr=0.1, momentum=0.9)  # update first two layer
+], lr=0.001, momentum=0.9)  # update first two layer
 
-optimizer_back = optim.SGD([
-    {'params': resnet50.layer3.parameters()},
-    {'params': resnet50.layer4.parameters()},
+optimizer_2 = optim.SGD([
+    {'params': resnet50.layer2.parameters()},
     {'params': resnet50.fc2.parameters()}
-], lr=0.1, momentum=0.9)  # update layer3 and 4
+], lr=0.001, momentum=0.9)  # update layer3 and 4
+
+optimizer_3 = optim.SGD([
+    {'params': resnet50.layer3.parameters()},
+    {'params': resnet50.fc3.parameters()}
+], lr=0.001, momentum=0.9)  # update layer3 and 4
+
+optimizer_4 = optim.SGD([
+    {'params': resnet50.layer4.parameters()},
+    {'params': resnet50.fc4.parameters()}
+], lr=0.001, momentum=0.9)  # update layer3 and 4
 
 criterion = torch.nn.CrossEntropyLoss()
-# Learning rate scheduler
-scheduler_front = lr_scheduler.StepLR(optimizer_front, step_size=50, gamma=0.1)
-scheduler_back = lr_scheduler.StepLR(optimizer_back, step_size=50, gamma=0.1)
 
 train_losses = []
 # train
@@ -70,23 +75,30 @@ for epoch in range(num_epochs):
     for inputs, labels in trainloader:
         inputs, labels = inputs.to(device), labels.to(device)
 
-        optimizer_front.zero_grad()
-        optimizer_back.zero_grad()
+        optimizer_1.zero_grad()
+        optimizer_2.zero_grad()
+        optimizer_3.zero_grad()
+        optimizer_4.zero_grad()
 
-        outputs, extra_output = resnet50(inputs)
-        loss_front = criterion(extra_output, labels)
-        loss_front.backward(retain_graph=True)
+        outputs, extra_1, extra_2,extra_3 = resnet50(inputs)
+        loss_1 = criterion(extra_1, labels)
+        loss_1.backward(retain_graph=True)
 
-        loss_back = criterion(outputs, labels)
-        loss_back.backward()
+        loss_2 = criterion(extra_2, labels)
+        loss_2.backward(retain_graph=True)
 
-        optimizer_front.step()
-        optimizer_back.step()
+        loss_3 = criterion(extra_3, labels)
+        loss_3.backward(retain_graph=True)
 
-        scheduler_front.step()
-        scheduler_back.step()
+        loss_4 = criterion(outputs, labels)
+        loss_4.backward()
 
-        running_loss += loss_back.item()
+        optimizer_1.step()
+        optimizer_2.step()
+        optimizer_3.step()
+        optimizer_4.step()
+
+        running_loss += loss_4.item()
 
     avg_train_loss = running_loss / len(trainloader)
 
