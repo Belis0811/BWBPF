@@ -4,7 +4,7 @@ import torchvision
 import torchvision.transforms as transforms
 import matplotlib.pyplot as plt
 from sklearn.metrics import accuracy_score
-import ResNet
+from torchvision.models import resnet34
 
 # process data
 transform = transforms.Compose([
@@ -23,22 +23,15 @@ testset = torchvision.datasets.CIFAR100(root='./data', train=False, download=Fal
 testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False)
 
 # init the model
-num_classes = 1003
-resnet34 = ResNet.ResNet50(num_classes=num_classes)
+num_classes = 100
+resnet34 = resnet34(num_classes=num_classes, pretrained=False)
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 resnet34.to(device)
-weight_decay = 0.01
+weight_decay = 0.005
 
 # define optimizer and loss function
-optimizer = optim.SGD([
-    {'params': resnet34.conv1.parameters()},
-    {'params': resnet34.bn1.parameters()},
-    {'params': resnet34.layer1.parameters()},
-    {'params': resnet34.layer2.parameters()},
-    {'params': resnet34.layer3.parameters()},
-    {'params': resnet34.layer4.parameters()},
-    {'params': resnet34.fc.parameters()}
-], lr=0.001, momentum=0.9, weight_decay=weight_decay)  # update first two layer
+optimizer = optim.SGD(resnet34.parameters(), lr=0.001, momentum=0.9,
+                      weight_decay=weight_decay)  # update first two layer
 
 criterion = torch.nn.CrossEntropyLoss()
 
