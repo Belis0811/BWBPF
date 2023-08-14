@@ -4,7 +4,9 @@ import torchvision
 import torchvision.transforms as transforms
 from sklearn.metrics import accuracy_score
 import matplotlib.pyplot as plt
-
+from torch.optim import lr_scheduler
+from torchvision.models import ResNet50_Weights
+import torchvision.models as models
 import ResNet
 
 # process data
@@ -16,37 +18,54 @@ transform = transforms.Compose([
 ])
 
 # load CIFAR_10
-batch_size = 64
+batch_size = 128
 trainset = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=transform)
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True)
 # init the model
 num_classes = 10
-resnet34 = ResNet.ResNet34(num_classes=num_classes)
+resnet50 = ResNet.ResNet50(num_classes=num_classes)
+
+weights = ResNet50_Weights.DEFAULT
+resnet50_pretrained = models.resnet50(weights=weights)
+pretrained_state_dict = resnet50_pretrained.state_dict()
+
+# Remove keys not present in your custom ResNet state_dict
+model_state_dict = resnet50.state_dict()
+pretrained_state_dict = {k: v for k, v in pretrained_state_dict.items() if k in model_state_dict}
+
+# Update your model's state_dict
+model_state_dict.update(pretrained_state_dict)
+resnet50.load_state_dict(model_state_dict)
+
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-resnet34.to(device)
+resnet50.to(device)
+weight_decay = 0.001
 
 # define optimizer and loss function
 optimizer_front = optim.SGD([
-    {'params': resnet34.conv1.parameters()},
-    {'params': resnet34.bn1.parameters()},
-    {'params': resnet34.layer1.parameters()},
-    {'params': resnet34.layer2.parameters()},
-    {'params': resnet34.fc1.parameters()}
-], lr=0.001, momentum=0.9)  # update first two layer
+    {'params': resnet50.conv1.parameters()},
+    {'params': resnet50.bn1.parameters()},
+    {'params': resnet50.layer1.parameters()},
+    {'params': resnet50.layer2.parameters()},
+    {'params': resnet50.fc1.parameters()}
+], lr=0.1, momentum=0.9)  # update first two layer
 
 optimizer_back = optim.SGD([
-    {'params': resnet34.layer3.parameters()},
-    {'params': resnet34.layer4.parameters()},
-    {'params': resnet34.fc2.parameters()}
-], lr=0.001, momentum=0.9)  # update layer3 and 4
+    {'params': resnet50.layer3.parameters()},
+    {'params': resnet50.layer4.parameters()},
+    {'params': resnet50.fc2.parameters()}
+], lr=0.1, momentum=0.9)  # update layer3 and 4
 
 criterion = torch.nn.CrossEntropyLoss()
+# Learning rate scheduler
+scheduler_front = lr_scheduler.StepLR(optimizer_front, step_size=50, gamma=0.1)
+scheduler_back = lr_scheduler.StepLR(optimizer_back, step_size=50, gamma=0.1)
 
 train_losses = []
 # train
 num_epochs = 150
 for epoch in range(num_epochs):
-    resnet34.train()
+    resnet50.train()
     running_loss = 0.0
     for inputs, labels in trainloader:
         inputs, labels = inputs.to(device), labels.to(device)
@@ -54,7 +73,7 @@ for epoch in range(num_epochs):
         optimizer_front.zero_grad()
         optimizer_back.zero_grad()
 
-        outputs, extra_output = resnet34(inputs)
+        outputs, extra_output = resnet50(inputs)
         loss_front = criterion(extra_output, labels)
         loss_front.backward(retain_graph=True)
 
@@ -63,6 +82,9 @@ for epoch in range(num_epochs):
 
         optimizer_front.step()
         optimizer_back.step()
+
+        scheduler_front.step()
+        scheduler_back.step()
 
         running_loss += loss_back.item()
 
@@ -75,7 +97,7 @@ for epoch in range(num_epochs):
 print("Training finished!")
 
 # test
-resnet34.eval()
+resnet50.eval()
 testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=transform)
 testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False)
 
@@ -85,7 +107,7 @@ with torch.no_grad():
     for inputs, labels in testloader:
         inputs, labels = inputs.to(device), labels.to(device)
 
-        outputs, _ = resnet34(inputs)
+        outputs, _ = resnet50(inputs)
         _, predicted = torch.max(outputs, 1)
 
         all_labels.extend(labels.cpu().numpy())
