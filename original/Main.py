@@ -56,6 +56,8 @@ num_epochs = 200
 for epoch in range(num_epochs):
     resnet50.train()
     running_loss = 0.0
+    correct = 0
+    total = 0
     for inputs, labels in trainloader:
         inputs, labels = inputs.to(device), labels.to(device)
 
@@ -66,10 +68,14 @@ for epoch in range(num_epochs):
         optimizer.step()
 
         running_loss += loss.item()
+        _,predicted = outputs.max(1)
+        total += labels.size(0)
+        correct += predicted.eq(labels).sum().item()
+
     avg_train_loss = running_loss / len(trainloader)
     train_losses.append(avg_train_loss)
 
-    print(f"Epoch [{epoch + 1}/{num_epochs}], Loss: {avg_train_loss:.4f}")
+    print(f"Epoch [{epoch + 1}/{num_epochs}], Loss: {avg_train_loss:.4f}, Acc: {100.* correct/total:.2f}%")
 
     # test in every epoch
     '''
@@ -95,18 +101,22 @@ resnet50.eval()
 
 all_labels = []
 all_predictions = []
+test_loss = 0
 with torch.no_grad():
     for inputs, labels in testloader:
         inputs, labels = inputs.to(device), labels.to(device)
 
         outputs = resnet50(inputs)
+        loss = criterion(outputs,labels)
+        test_loss += loss.item()
+
         _, predicted = torch.max(outputs, 1)
 
         all_labels.extend(labels.cpu().numpy())
         all_predictions.extend(predicted.cpu().numpy())
 
 accuracy = accuracy_score(all_labels, all_predictions)
-print(f"Test Loss Rate: {(1 - accuracy) * 100:.2f} %")
+print(f"Test Accuracy: { accuracy * 100:.2f} %, Test Loss: {test_loss/len(testloader):.4f}")
 
 # plot the learning loss
 plt.plot(train_losses, label="Train Loss")
