@@ -10,18 +10,33 @@ import torch.nn as nn
 import ResNet
 
 # process data
+'''
 transform = transforms.Compose([
     transforms.RandomHorizontalFlip(),
     transforms.RandomCrop(32, padding=4),
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
+'''
+train_transform = transforms.Compose([
+    transforms.RandomResizedCrop(224),
+    transforms.RandomHorizontalFlip(),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+])
+
+test_transform = transforms.Compose([
+    transforms.RandomResizedCrop(256),
+    transforms.CenterCrop(224),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+])
 
 # load CIFAR_10
-trainset = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=transform)
+trainset = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=train_transform)
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=128, shuffle=True)
 
-testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=False, transform=transform)
+testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=False, transform=test_transform)
 testloader = torch.utils.data.DataLoader(testset, batch_size=100, shuffle=False)
 
 # init the model
@@ -68,14 +83,14 @@ for epoch in range(num_epochs):
         optimizer.step()
 
         running_loss += loss.item()
-        _,predicted = outputs.max(1)
+        _, predicted = outputs.max(1)
         total += labels.size(0)
         correct += predicted.eq(labels).sum().item()
 
     avg_train_loss = running_loss / len(trainloader)
     train_losses.append(avg_train_loss)
 
-    print(f"Epoch [{epoch + 1}/{num_epochs}], Loss: {avg_train_loss:.4f}, Acc: {100.* correct/total:.2f}%")
+    print(f"Epoch [{epoch + 1}/{num_epochs}], Loss: {avg_train_loss:.4f}, Acc: {100. * correct / total:.2f}%")
 
     # test in every epoch
     '''
@@ -107,7 +122,7 @@ with torch.no_grad():
         inputs, labels = inputs.to(device), labels.to(device)
 
         outputs = resnet50(inputs)
-        loss = criterion(outputs,labels)
+        loss = criterion(outputs, labels)
         test_loss += loss.item()
 
         _, predicted = torch.max(outputs, 1)
@@ -116,7 +131,7 @@ with torch.no_grad():
         all_predictions.extend(predicted.cpu().numpy())
 
 accuracy = accuracy_score(all_labels, all_predictions)
-print(f"Test Accuracy: { accuracy * 100:.2f} %, Test Loss: {test_loss/len(testloader):.4f}")
+print(f"Test Accuracy: {accuracy * 100:.2f} %, Test Loss: {test_loss / len(testloader):.4f}")
 
 # plot the learning loss
 plt.plot(train_losses, label="Train Loss")
