@@ -4,10 +4,10 @@ import torchvision
 import torchvision.transforms as transforms
 import matplotlib.pyplot as plt
 from sklearn.metrics import accuracy_score
-from torchvision.models import ResNet50_Weights
+import torchvision.models.resnet
+import torch.nn as nn
 
 import ResNet
-
 
 # process data
 transform = transforms.Compose([
@@ -27,27 +27,30 @@ testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle
 
 # init the model
 num_classes = 10
-resnet50 = ResNet.ResNet50(num_classes=num_classes)
-
+resnet50 = ResNet.ResNet50()
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 resnet50.to(device)
-weight_decay = 0.001
+model_weight_path = "../resnet50-pre.pth"
+missing_keys, unexpected_keys = resnet50.load_state_dict(torch.load(model_weight_path), strict=False)
+inchannel = resnet50.fc.in_features
+resnet50.fc = nn.Linear(inchannel, num_classes)
+weight_decay = 0.0001
 
 # define optimizer and loss function
 optimizer = optim.SGD([
-    {'params': resnet50.model.conv1.parameters()},
-    {'params': resnet50.model.bn1.parameters()},
-    {'params': resnet50.model.layer1.parameters()},
-    {'params': resnet50.model.layer2.parameters()},
-    {'params': resnet50.model.layer3.parameters()},
-    {'params': resnet50.model.layer4.parameters()},
+    {'params': resnet50.conv1.parameters()},
+    {'params': resnet50.bn1.parameters()},
+    {'params': resnet50.layer1.parameters()},
+    {'params': resnet50.layer2.parameters()},
+    {'params': resnet50.layer3.parameters()},
+    {'params': resnet50.layer4.parameters()},
     {'params': resnet50.fc.parameters()}
 ], lr=0.001, momentum=0.9, weight_decay=weight_decay)  # update first two layer
 
 criterion = torch.nn.CrossEntropyLoss()
 
 train_losses = []
-#test_losses = []
+# test_losses = []
 # train
 num_epochs = 200
 for epoch in range(num_epochs):
@@ -103,7 +106,7 @@ with torch.no_grad():
         all_predictions.extend(predicted.cpu().numpy())
 
 accuracy = accuracy_score(all_labels, all_predictions)
-print(f"Test Loss Rate: {(1-accuracy)*100:.2f} %")
+print(f"Test Loss Rate: {(1 - accuracy) * 100:.2f} %")
 
 # plot the learning loss
 plt.plot(train_losses, label="Train Loss")
@@ -119,4 +122,3 @@ plt.ylabel("Loss")
 plt.legend()
 plt.show()
 '''
-

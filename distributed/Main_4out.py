@@ -4,10 +4,8 @@ import torchvision
 import torchvision.transforms as transforms
 from sklearn.metrics import accuracy_score
 import matplotlib.pyplot as plt
-from torch.optim import lr_scheduler
-from torchvision.models import ResNet50_Weights
-import torchvision.models as models
-import ResNet
+import torch.nn as nn
+import ResNet_4out
 
 # process data
 transform = transforms.Compose([
@@ -23,22 +21,14 @@ trainset = torchvision.datasets.CIFAR10(root='./data', train=True, download=True
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True)
 # init the model
 num_classes = 10
-resnet50 = ResNet.ResNet50(num_classes=num_classes)
-
-weights = ResNet50_Weights.DEFAULT
-resnet50_pretrained = models.resnet50(weights=weights)
-pretrained_state_dict = resnet50_pretrained.state_dict()
-
-# Remove keys not present in custom ResNet state_dict
-model_state_dict = resnet50.state_dict()
-pretrained_state_dict = {k: v for k, v in pretrained_state_dict.items() if k in model_state_dict}
-
-# Update model's state_dict
-model_state_dict.update(pretrained_state_dict)
-resnet50.load_state_dict(model_state_dict)
-
+resnet50 = ResNet_4out.ResNet50()
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 resnet50.to(device)
+model_weight_path = "../resnet50-pre.pth"
+missing_keys, unexpected_keys = resnet50.load_state_dict(torch.load(model_weight_path), strict=False)
+inchannel = resnet50.fc4.in_features
+resnet50.fc4 = nn.Linear(inchannel, num_classes)
+
 weight_decay = 0.001
 
 # define optimizer and loss function
@@ -68,7 +58,7 @@ criterion = torch.nn.CrossEntropyLoss()
 
 train_losses = []
 # train
-num_epochs = 150
+num_epochs = 200
 for epoch in range(num_epochs):
     resnet50.train()
     running_loss = 0.0

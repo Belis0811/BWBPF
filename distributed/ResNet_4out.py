@@ -84,10 +84,10 @@ class ResNet(nn.Module):
         self.layer3 = self._make_layer(block, 256, num_blocks[2], stride=2)
         self.layer4 = self._make_layer(block, 512, num_blocks[3], stride=2)
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
-        self.fc1 = nn.Linear(64 * block.expansion, num_classes*100)
-        self.fc2 = nn.Linear(128 * block.expansion, num_classes*100)
-        self.fc3 = nn.Linear(256 * block.expansion, num_classes*100)
-        self.fc4 = nn.Linear(512 * block.expansion, num_classes*100)
+        self.fc1 = nn.Linear(64 * block.expansion, num_classes)
+        self.fc2 = nn.Linear(128 * block.expansion, num_classes)
+        self.fc3 = nn.Linear(256 * block.expansion, num_classes)
+        self.fc4 = nn.Linear(512 * block.expansion, num_classes)
 
     def _make_layer(self, block, planes, num_blocks, stride):
         strides = [stride] + [1] * (num_blocks - 1)
@@ -134,12 +134,12 @@ def ResNet18():
     return ResNet(BasicBlock, [2, 2, 2, 2])
 
 
-def ResNet34(num_classes):
-    return ResNet(BasicBlock, [3, 4, 6, 3], num_classes=num_classes)
+def ResNet34():
+    return ResNet(BasicBlock, [3, 4, 6, 3])
 
 
-def ResNet50(num_classes):
-    return ResNet(Bottleneck, [3, 4, 6, 3],num_classes=num_classes)
+def ResNet50():
+    return ResNet(Bottleneck, [3, 4, 6, 3])
 
 
 def ResNet101():
