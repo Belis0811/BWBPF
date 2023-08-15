@@ -4,7 +4,7 @@ import torchvision
 import torchvision.transforms as transforms
 import matplotlib.pyplot as plt
 from sklearn.metrics import accuracy_score
-import torchvision.models.resnet
+import torchvision.models as model
 import torch.nn as nn
 
 import ResNet
@@ -43,10 +43,23 @@ testloader = torch.utils.data.DataLoader(testset, batch_size=100, shuffle=False)
 num_classes = 10
 resnet50 = ResNet.ResNet50()
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+'''
 model_weight_path = "../resnet50-pre.pth"
 missing_keys, unexpected_keys = resnet50.load_state_dict(torch.load(model_weight_path), strict=False)
 inchannel = resnet50.fc.in_features
 resnet50.fc = nn.Linear(inchannel, num_classes)
+'''
+weight = resnet50.state_dict()
+resnet50_pre = model.resnet50(weights=model.ResNet50_Weights.DEFAULT)
+pre_weight = resnet50_pre.state_dict()
+
+
+for k in pre_weight.keys():
+    if k in weight.keys() and not k.startswith('fc'):
+        weight[k] = pre_weight[k]
+
+resnet50.load_state_dict(weight)
+
 resnet50.to(device)
 
 weight_decay = 0.0001
