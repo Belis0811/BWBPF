@@ -16,7 +16,7 @@ from torchvision.models import ResNet50_Weights
 class BasicBlock(nn.Module):
     expansion = 1
 
-    def __init__(self, in_planes, planes, stride=1,downsample = None):
+    def __init__(self, in_planes, planes, stride=1, downsample=None):
         super(BasicBlock, self).__init__()
         self.conv1 = nn.Conv2d(
             in_planes, planes, kernel_size=3, stride=stride, padding=1, bias=False)
@@ -49,7 +49,7 @@ class BasicBlock(nn.Module):
 class Bottleneck(nn.Module):
     expansion = 4
 
-    def __init__(self, in_planes, planes, stride=1, downsample = None):
+    def __init__(self, in_planes, planes, stride=1, downsample=None):
         super(Bottleneck, self).__init__()
         self.conv1 = nn.Conv2d(in_planes, planes, kernel_size=1, bias=False)
         self.bn1 = nn.BatchNorm2d(planes)
@@ -100,11 +100,11 @@ class ResNet(nn.Module):
         self.fc2 = nn.Linear(512 * block.expansion, num_classes*100)
         '''
 
-        self.model = models.resnet50(weights = ResNet50_Weights.DEFAULT)
-        self.model.avgpool = nn.AdaptiveAvgPool2d((1,1))
-        self.fc1 = nn.Linear(128 * block.expansion, num_classes * 100)
-        self.fc2 = nn.Linear(512 * block.expansion, num_classes * 100)
-
+        self.model = models.resnet50(weights=ResNet50_Weights.DEFAULT)
+        self.model.avgpool = nn.AdaptiveAvgPool2d((1, 1))
+        self.model.fc = nn.Identity()
+        self.fc1 = nn.Linear(128 * block.expansion, num_classes)
+        self.fc2 = nn.Linear(512 * block.expansion, num_classes)
 
     def _make_layer(self, block, planes, num_blocks, stride):
         strides = [stride] + [1] * (num_blocks - 1)
@@ -146,7 +146,7 @@ def ResNet34(num_classes):
 
 
 def ResNet50(num_classes):
-    return ResNet(Bottleneck, [3, 4, 6, 3],num_classes=num_classes)
+    return ResNet(Bottleneck, [3, 4, 6, 3], num_classes=num_classes)
 
 
 def ResNet101():
