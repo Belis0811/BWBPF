@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import accuracy_score
 import torchvision.models as model
 import torch.nn as nn
+import torchvision.models.resnet
 
 import ResNet
 
