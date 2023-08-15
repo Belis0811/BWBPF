@@ -18,22 +18,22 @@ transform = transforms.Compose([
 ])
 
 # load CIFAR_10
-batch_size = 128
 trainset = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=transform)
-trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True)
+trainloader = torch.utils.data.DataLoader(trainset, batch_size=128, shuffle=True)
 
 testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=False, transform=transform)
-testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False)
+testloader = torch.utils.data.DataLoader(testset, batch_size=100, shuffle=False)
 
 # init the model
 num_classes = 10
 resnet50 = ResNet.ResNet50()
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-resnet50.to(device)
 model_weight_path = "../resnet50-pre.pth"
 missing_keys, unexpected_keys = resnet50.load_state_dict(torch.load(model_weight_path), strict=False)
 inchannel = resnet50.fc.in_features
 resnet50.fc = nn.Linear(inchannel, num_classes)
+resnet50.to(device)
+
 weight_decay = 0.0001
 
 # define optimizer and loss function

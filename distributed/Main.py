@@ -23,11 +23,11 @@ trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuff
 num_classes = 10
 resnet50 = ResNet.ResNet50()
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-resnet50.to(device)
 model_weight_path = "../resnet50-pre.pth"
 missing_keys, unexpected_keys = resnet50.load_state_dict(torch.load(model_weight_path), strict=False)
 inchannel = resnet50.fc2.in_features
 resnet50.fc2 = nn.Linear(inchannel, num_classes)
+resnet50.to(device)
 weight_decay = 0.0001
 
 # define optimizer and loss function

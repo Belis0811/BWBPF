@@ -75,7 +75,7 @@ class ResNet(nn.Module):
         super(ResNet, self).__init__()
         self.in_planes = 64
 
-        self.conv1 = nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3, bias=False)
+        self.conv1 = nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=1, bias=False)
         self.bn1 = nn.BatchNorm2d(64)
         self.relu = nn.ReLU(inplace=True)
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
@@ -105,14 +105,14 @@ class ResNet(nn.Module):
         x = self.layer2(x)
         ex = x
         ex = self.avgpool(ex)
-        ex = torch.flatten(ex, 1)
+        ex = ex.view(ex.size(0), -1)
         ex = self.fc1(ex)
 
         x = self.layer3(x)
         x = self.layer4(x)
 
         x = self.avgpool(x)
-        x = torch.flatten(x, 1)
+        x = x.view(x.size(0), -1)
         x = self.fc2(x)
 
         return x, ex
