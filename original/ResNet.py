@@ -90,7 +90,7 @@ class ResNet(nn.Module):
         '''
         self.model = models.resnet50(weights=ResNet50_Weights.DEFAULT)
         self.model.avgpool = nn.AdaptiveAvgPool2d((1, 1))
-        self.fc = nn.Linear(512 * block.expansion, num_classes*100)
+        self.fc = nn.Linear(self.model.fc.in_features,10)
 
     def _make_layer(self, block, planes, num_blocks, stride):
         strides = [stride] + [1] * (num_blocks - 1)
