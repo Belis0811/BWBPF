@@ -105,11 +105,6 @@ for epoch in range(start_epoch, start_epoch + 200):
     test(epoch)
     scheduler.step()
 
-for epoch in range(start_epoch, start_epoch + 200):
-    train(epoch)
-    test(epoch)
-    scheduler.step()
-
 # Save the trained weights
 save_path = 'resnet50_cifar10.pth'
 torch.save(net.state_dict(), save_path)
