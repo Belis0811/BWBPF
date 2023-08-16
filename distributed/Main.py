@@ -135,7 +135,7 @@ plt.legend()
 plt.show()
 
 # plot test loss
-plt.plot(train_losses, label="Test Loss")
+plt.plot(test_losses, label="Test Loss")
 plt.xlabel("Epoch")
 plt.ylabel("Loss")
 plt.legend()
