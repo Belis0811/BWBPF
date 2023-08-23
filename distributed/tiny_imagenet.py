@@ -1,22 +1,19 @@
 '''Train CIFAR10 with PyTorch.'''
-import os
-from shutil import copy2
-
 import torch
 import torch.nn as nn
 import torch.optim as optim
-import torch.backends.cudnn as cudnn
 import matplotlib.pyplot as plt
 import torchvision
 import torchvision.transforms as transforms
 import ResNet_4out
+import tiny_imagenet_loader
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 start_epoch = 0  # start from epoch 0 or last checkpoint epoch
 
 # get directory
-train_directory = '../tiny-imagenet-200/train'
-test_directory = '../tiny-imagenet-200/test'
+train_directory = './tiny-imagenet-200/train'
+test_directory = './tiny-imagenet-200/'
 # Data
 transform_train = transforms.Compose([
     transforms.RandomCrop(64, padding=4),
@@ -35,8 +32,7 @@ trainset = torchvision.datasets.ImageFolder(
 trainloader = torch.utils.data.DataLoader(
     trainset, batch_size=32, shuffle=True, num_workers=0)
 
-testset = torchvision.datasets.ImageFolder(
-    root=test_directory, transform=transform_test)
+testset = tiny_imagenet_loader.TinyImageNet_load(test_directory, train=False, transform=transform_test)
 testloader = torch.utils.data.DataLoader(
     testset, batch_size=32, shuffle=False, num_workers=0)
 # load resnet50
@@ -139,7 +135,7 @@ def test(epoch):
     test_losses.append(test_loss / len(testloader))
 
 
-for epoch in range(start_epoch, start_epoch + 200):
+for epoch in range(start_epoch, start_epoch + 500):
     train(epoch)
     test(epoch)
     scheduler_1.step()
