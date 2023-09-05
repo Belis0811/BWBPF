@@ -37,7 +37,7 @@ testloader = torch.utils.data.DataLoader(
     testset, batch_size=100, shuffle=False, num_workers=0)
 
 # Model
-# net = VGG('VGG19')
+# net = VGG.py('VGG19')
 # net = ResNet18()
 # net = PreActResNet18()
 # net = GoogLeNet()

@@ -7,13 +7,14 @@ import matplotlib.pyplot as plt
 import torchvision
 import torchvision.transforms as transforms
 import VGG
+import tiny_imagenet_loader
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 start_epoch = 0  # start from epoch 0 or last checkpoint epoch
 
 # Data
 transform_train = transforms.Compose([
-    transforms.RandomCrop(32, padding=4),
+    transforms.RandomCrop(64, padding=4),
     transforms.RandomHorizontalFlip(),
     transforms.ToTensor(),
     transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
@@ -24,15 +25,19 @@ transform_test = transforms.Compose([
     transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
 ])
 
-trainset = torchvision.datasets.CIFAR10(
-    root='./data', train=True, download=True, transform=transform_train)
-trainloader = torch.utils.data.DataLoader(
-    trainset, batch_size=128, shuffle=True, num_workers=0)
+train_directory = '../tiny-imagenet-200/train'
+test_directory = '../tiny-imagenet-200/'
 
-testset = torchvision.datasets.CIFAR10(
-    root='./data', train=False, download=True, transform=transform_test)
+
+trainset = torchvision.datasets.ImageFolder(
+    root=train_directory, transform=transform_train)
+trainloader = torch.utils.data.DataLoader(
+    trainset, batch_size=32, shuffle=True, num_workers=0)
+
+testset = tiny_imagenet_loader.TinyImageNet_load(test_directory, train=False, transform=transform_test)
 testloader = torch.utils.data.DataLoader(
-    testset, batch_size=100, shuffle=False, num_workers=0)
+    testset, batch_size=32, shuffle=False, num_workers=0)
+
 # load resnet50
 net = VGG.VGG('VGG19')
 net = net.to(device)

@@ -42,13 +42,9 @@ class VGGBlock(nn.Module):
         if x.shape[1] == 512:
             out = out.view(out.size(0), -1)
             #out = self.classifier(out)
-            return out, out
-        identity = out
-        out = self.pool(out)
-        out = out.view(out.size(0), -1)
-        out = self.classifier(out)
+            return out
         # print(identity.shape, out.shape)
-        return out, identity
+        return out
 
 
 class VGG(nn.Module):
@@ -61,14 +57,14 @@ class VGG(nn.Module):
         self.layer5 = VGGBlock(512, 512, 4)
 
     def forward(self, x):
-        out1, out = self.layer1(x)
+        out = self.layer1(x)
 
-        out2, out = self.layer2(out)
+        out = self.layer2(out)
 
-        out3, out = self.layer3(out)
-        out4, out = self.layer4(out)
-        out5, _ = self.layer5(out)
-        return out5, out1, out2, out3, out4
+        out = self.layer3(out)
+        out = self.layer4(out)
+        out = self.layer5(out)
+        return out
 
 
 def test():

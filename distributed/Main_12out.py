@@ -3,21 +3,21 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.backends.cudnn as cudnn
-import matplotlib.pyplot as plt
 import torchvision
 import torchvision.transforms as transforms
 import ResNet_12out
-import time
+import tiny_imagenet_loader
 
 device_id = 0
 device = torch.device('cuda:{}'.format(device_id)) if torch.cuda.is_available() else 'cpu'
-print(torch.cuda.is_available())
-print(device)
 start_epoch = 0  # start from epoch 0 or last checkpoint epoch
 
+# get directory
+train_directory = '../tiny-imagenet-200/train'
+test_directory = '../tiny-imagenet-200/'
 # Data
 transform_train = transforms.Compose([
-    transforms.RandomCrop(32, padding=4),
+    transforms.RandomCrop(64, padding=4),
     transforms.RandomHorizontalFlip(),
     transforms.ToTensor(),
     transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
@@ -28,19 +28,17 @@ transform_test = transforms.Compose([
     transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
 ])
 
-trainset = torchvision.datasets.CIFAR10(
-    root='./data', train=True, download=True, transform=transform_train)
+trainset = torchvision.datasets.ImageFolder(
+    root=train_directory, transform=transform_train)
 trainloader = torch.utils.data.DataLoader(
-    trainset, batch_size=128, shuffle=True, num_workers=0)
+    trainset, batch_size=32, shuffle=True, num_workers=0)
 
-testset = torchvision.datasets.CIFAR10(
-    root='./data', train=False, download=True, transform=transform_test)
+testset = tiny_imagenet_loader.TinyImageNet_load(test_directory, train=False, transform=transform_test)
 testloader = torch.utils.data.DataLoader(
-    testset, batch_size=100, shuffle=False, num_workers=0)
+    testset, batch_size=32, shuffle=False, num_workers=0)
+
 # load resnet101
-model_name = 'resnet101_cifar10_12out'
-print(model_name)
-net = ResNet_12out.ResNet101(num_classes=10)
+net = ResNet_12out.ResNet101(num_classes=200)
 net = net.to(device)
 if device == 'cuda':
     net = torch.nn.DataParallel(net)
@@ -123,8 +121,6 @@ scheduler_10 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_10, T_max=20
 scheduler_11 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_11, T_max=200)
 scheduler_12 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_12, T_max=200)
 
-
-
 train_losses = []
 test_losses = []
 train_acc = []
@@ -133,6 +129,7 @@ test_acc_best = 0
 epoch_acc_best = 0
 model_best = None
 epoch_num = 200
+
 
 # Training
 def train(epoch):
@@ -157,9 +154,8 @@ def train(epoch):
         optimizer_11.zero_grad()
         optimizer_12.zero_grad()
 
-
-
-        outputs, extra_1, extra_2, extra_3, extra_4, extra_5, extra_6, extra_7, extra_8, extra_9, extra_10, extra_11 = net(inputs)
+        outputs, extra_1, extra_2, extra_3, extra_4, extra_5, extra_6, extra_7, extra_8, extra_9, extra_10, extra_11 = net(
+            inputs)
         loss_1 = criterion(extra_1, targets)
         loss_1.backward(retain_graph=True)
 
@@ -209,7 +205,6 @@ def train(epoch):
         optimizer_11.step()
         optimizer_12.step()
 
-
         train_loss += loss_12.item()
         _, predicted = outputs.max(1)
         total += targets.size(0)
@@ -220,16 +215,6 @@ def train(epoch):
     acc = 100. * correct / total
     train_acc.append(acc)
     train_losses.append(train_loss / len(trainloader))
-
-    with open(r'./outcome/'+model_name+'/train_loss.txt', 'a') as f1:
-        f1.write('epoch'+str(epoch)+':{:.3f}'.format(train_loss / len(trainloader)))
-        f1.write('\n')
-        f1.close()
-
-    with open(r'./outcome/'+model_name+'/train_acc.txt', 'a') as f2:
-        f2.write('epoch'+str(epoch)+':{:.3f}%'.format(acc))
-        f2.write('\n')
-        f2.close()
 
 
 def test(epoch):
@@ -256,57 +241,17 @@ def test(epoch):
     acc = 100. * correct / total
     test_acc.append(acc)
 
-    if acc>test_acc_best:
+    if acc > test_acc_best:
         test_acc_best = acc
         epoch_acc_best = epoch
         model_best = net.state_dict()
 
-    if (epoch+1)%10==0:
-        save_path = r'./model/'+model_name+'/epoch'+str(epoch_acc_best)+'.pth'
-        torch.save(model_best, save_path)
-        print("Trained weights saved to:", save_path)
-
     test_losses.append(test_loss / len(testloader))
 
-    with open(r'./outcome/'+model_name+'/test_loss.txt', 'a') as f3:
-        f3.write('epoch'+str(epoch)+':{:.3f}'.format(test_loss / len(testloader)))
-        f3.write('\n')
-        f3.close()
-
-    with open(r'./outcome/'+model_name+'/test_acc.txt', 'a') as f4:
-        f4.write('epoch'+str(epoch)+':{:.3f}%'.format(acc))
-        f4.write('\n')
-        f4.close()
-
-
-time0 = time.time()
-with open(r'./outcome/'+model_name+'/train_loss.txt', 'w') as f:
-    f.write('train_loss')
-    f.write('\n')
-    f.close()
-with open(r'./outcome/'+model_name+'/train_acc.txt', 'w') as f:
-    f.write('train_acc')
-    f.write('\n')
-    f.close()
-with open(r'./outcome/'+model_name+'/test_loss.txt', 'w') as f:
-    f.write('test_loss')
-    f.write('\n')
-    f.close()
-with open(r'./outcome/'+model_name+'/test_acc.txt', 'w') as f:
-    f.write('test_acc')
-    f.write('\n')
-    f.close()
 
 for epoch in range(start_epoch, start_epoch + epoch_num):
-    time0 = time.time()
     train(epoch)
     test(epoch)
-    time1 = time.time()
-    dt = time1 - time0
-    h = dt//3600
-    m = (dt - h*3600)//60
-    s = dt - h*3600 - m*60
-    print('epoch {} : {}h {}min {}s'.format(epoch, h, m, s))
     scheduler_1.step()
     scheduler_2.step()
     scheduler_3.step()
@@ -316,22 +261,7 @@ for epoch in range(start_epoch, start_epoch + epoch_num):
     scheduler_7.step()
     scheduler_8.step()
 
-
 # Save the trained weights
-save_path = 'resnet101_dis12_cifar10.pth'
+save_path = 'resnet101_dis12_tinyImagenet.pth'
 torch.save(net.state_dict(), save_path)
 print("Trained weights saved to:", save_path)
-
-# plot training loss
-plt.plot(train_losses, label="Train Loss")
-plt.xlabel("Epoch")
-plt.ylabel("Loss")
-plt.legend()
-plt.show()
-
-# plot test loss
-plt.plot(test_losses, label="Test Loss")
-plt.xlabel("Epoch")
-plt.ylabel("Loss")
-plt.legend()
-plt.show()
