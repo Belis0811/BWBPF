@@ -41,14 +41,31 @@ net = net.to(device)
 
 criterion = nn.CrossEntropyLoss()
 # define optimizer and loss function
-optimizer = optim.SGD([
+optimizer_1 = optim.SGD([
     {'params': net.conv1.parameters()},
     {'params': net.bn1.parameters()},
     {'params': net.layer1.parameters()},
+    {'params': net.fc1.parameters()}
+], lr=0.1, momentum=0.9, weight_decay=5e-4)  # update first two layer
+
+optimizer_2 = optim.SGD([
     {'params': net.layer2.parameters()},
-    {'params': net.fc.parameters()}
-], lr=0.1, momentum=0.9, weight_decay=5e-4) 
-scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_front, T_max=200)
+    {'params': net.fc2.parameters()}
+], lr=0.1, momentum=0.9, weight_decay=5e-4)  # update layer3 and 4
+
+optimizer_3 = optim.SGD([
+    {'params': net.layer3.parameters()},
+    {'params': net.fc3.parameters()}
+], lr=0.1, momentum=0.9, weight_decay=5e-4)  # update layer3 and 4
+
+optimizer_4 = optim.SGD([
+    {'params': net.layer4.parameters()},
+    {'params': net.fc4.parameters()}
+], lr=0.1, momentum=0.9, weight_decay=5e-4)  # update layer3 and 4
+scheduler_1 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_1, T_max=400)
+scheduler_2 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_2, T_max=400)
+scheduler_3 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_3, T_max=400)
+scheduler_4 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_4, T_max=400)
 
 train_losses = []
 test_losses = []
@@ -64,16 +81,30 @@ def train(epoch):
     for inputs, targets in trainloader:
         inputs, targets = inputs.to(device), targets.to(device)
 
-        optimizer.zero_grad()
+        optimizer_1.zero_grad()
+        optimizer_2.zero_grad()
+        optimizer_3.zero_grad()
+        optimizer_4.zero_grad()
 
-        outputs = net(inputs)
+        outputs, extra_1, extra_2, extra_3 = net(inputs)
+        loss_1 = criterion(extra_1, targets)
+        loss_1.backward(retain_graph=True)
 
-        loss = criterion(outputs, targets)
-        loss.backward()
+        loss_2 = criterion(extra_2, targets)
+        loss_2.backward(retain_graph=True)
 
-        optimizer.step()
+        loss_3 = criterion(extra_3, targets)
+        loss_3.backward(retain_graph=True)
 
-        train_loss += loss_back.item()
+        loss_4 = criterion(outputs, targets)
+        loss_4.backward()
+
+        optimizer_1.step()
+        optimizer_2.step()
+        optimizer_3.step()
+        optimizer_4.step()
+
+        train_loss += loss_4.item()
         _, predicted = outputs.max(1)
         total += targets.size(0)
         correct += predicted.eq(targets).sum().item()
@@ -91,7 +122,7 @@ def test(epoch):
     with torch.no_grad():
         for inputs, targets in testloader:
             inputs, targets = inputs.to(device), targets.to(device)
-            outputs = net(inputs)
+            outputs, _, _, _ = net(inputs)
             loss = criterion(outputs, targets)
 
             test_loss += loss.item()
@@ -104,13 +135,16 @@ def test(epoch):
     test_losses.append(test_loss / len(testloader))
 
 
-for epoch in range(start_epoch, start_epoch + 200):
+for epoch in range(start_epoch, start_epoch + 400):
     train(epoch)
     test(epoch)
-    scheduler.step()
+    scheduler_1.step()
+    scheduler_2.step()
+    scheduler_3.step()
+    scheduler_4.step()
 
 # Save the trained weights
-save_path = 'resnet50_dis_cifar10.pth'
+save_path = 'resnet50_dis4_cifar10.pth'
 torch.save(net.state_dict(), save_path)
 print("Trained weights saved to:", save_path)
 
