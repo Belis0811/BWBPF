@@ -2,6 +2,7 @@
 Paper is implemented with official pytorch
 >[Unlocking Deep Learning: A BP-Free Approach for Parallel Block-Wise Training of Neural Networks]
 >Anzhe Cheng, Zhenkun Wang, Chenzhong Yin etal.
+
 ![alt text](misc/overview_distributednn.png?raw=true "Weight updates of BWBPF.")
 To overcome the drawbacks of BP, particularly the issue of backward locking, we propose the BWBPF learning algorithm which eliminates BP for the global prediction loss and instead computes the local prediction loss.
 
