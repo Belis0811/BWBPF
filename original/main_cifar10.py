@@ -71,7 +71,7 @@ def train(epoch):
 
         optimizer.step()
 
-        train_loss += loss_back.item()
+        train_loss += loss.item()
         _, predicted = outputs.max(1)
         total += targets.size(0)
         correct += predicted.eq(targets).sum().item()
