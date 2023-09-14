@@ -6,7 +6,7 @@ import torch.backends.cudnn as cudnn
 import matplotlib.pyplot as plt
 import torchvision
 import torchvision.transforms as transforms
-import ResNet
+import ResNet_4out
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 start_epoch = 0  # start from epoch 0
@@ -34,9 +34,9 @@ testset = torchvision.datasets.CIFAR10(
 testloader = torch.utils.data.DataLoader(
     testset, batch_size=100, shuffle=False, num_workers=0)
 # load resnet50/101/152
-net = ResNet.ResNet50()
-# net = ResNet.ResNet101()
-# net = ResNet.ResNet152()
+net = ResNet_4out.ResNet50()
+# net = ResNet_4out.ResNet101()
+# net = ResNet_4out.ResNet152()
 net = net.to(device)
 
 criterion = nn.CrossEntropyLoss()
