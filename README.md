@@ -28,7 +28,7 @@ run main_cifar10.py to train cifar10 with ResNet50/101/152 by changing `net = Re
 python main_cifar10.py
 ```
 
-run main_tinyImage.py to train tinyImageNet with ResNet. Change `net = ResNet.ResNet50` to  `net = ResNet.ResNet101` or `net = ResNet.ResNet152` to test different model
+run main_tinyImage.py to train tinyImageNet with ResNet. Change `net = ResNet.ResNet101` to  `net = ResNet.ResNet50` or `net = ResNet.ResNet152` to test different model
 ```
 python main_tinyImage.py
 ```
