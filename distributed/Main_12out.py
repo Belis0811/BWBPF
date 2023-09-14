@@ -228,7 +228,7 @@ def test(epoch):
     with torch.no_grad():
         for inputs, targets in testloader:
             inputs, targets = inputs.to(device), targets.to(device)
-            outputs, _, _, _, _, _, _, _ = net(inputs)
+            outputs, _, _, _, _, _, _, _, _, _, _, _ = net(inputs)
             loss = criterion(outputs, targets)
 
             test_loss += loss.item()
@@ -260,6 +260,10 @@ for epoch in range(start_epoch, start_epoch + epoch_num):
     scheduler_6.step()
     scheduler_7.step()
     scheduler_8.step()
+    scheduler_9.step()
+    scheduler_10.step()
+    scheduler_11.step()
+    scheduler_12.step()
 
 # Save the trained weights
 save_path = 'resnet101_dis12_tinyImagenet.pth'
