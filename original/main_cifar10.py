@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import torchvision
 import torchvision.transforms as transforms
 import ResNet
+import VGG
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 start_epoch = 0  # start from epoch 0
@@ -37,18 +38,15 @@ testloader = torch.utils.data.DataLoader(
 net = ResNet.ResNet50()
 # net = ResNet.ResNet101()
 # net = ResNet.ResNet152()
+# net = VGG.VGG('VGG19')
 net = net.to(device)
 
 criterion = nn.CrossEntropyLoss()
 # define optimizer and loss function
 optimizer = optim.SGD([
-    {'params': net.conv1.parameters()},
-    {'params': net.bn1.parameters()},
-    {'params': net.layer1.parameters()},
-    {'params': net.layer2.parameters()},
-    {'params': net.fc.parameters()}
+    {'params': net.parameters()},
 ], lr=0.1, momentum=0.9, weight_decay=5e-4) 
-scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_front, T_max=200)
+scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=200)
 
 train_losses = []
 test_losses = []
