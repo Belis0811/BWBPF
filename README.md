@@ -43,7 +43,7 @@ train VGG with 4 outputs using tiny ImageNet
 python main_vgg.py
 ```
 
-run main_cifar10.py to train cifar10 with 4 outputs ResNet50/101/152 by changing `net = ResNet_4out.ResNet50` to `net = ResNet_4out.ResNet101` or `net = ResNet_4out.ResNet152`
+run main_cifar10.py to train cifar10 with 4 outputs ResNet50/101/152 by changing `net = ResNet.ResNet50` to `net = ResNet.ResNet101` or `net = ResNet.ResNet152`
 ```
 python main_cifar10.py
 ```
