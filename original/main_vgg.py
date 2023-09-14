@@ -44,7 +44,7 @@ net = net.to(device)
 
 criterion = nn.CrossEntropyLoss()
 # define optimizer and loss function
-optimizer_1 = optim.SGD([
+optimizer = optim.SGD([
     {'params': net.parameters()}
 ], lr=0.1, momentum=0.9, weight_decay=5e-4)  # update first two layer
 
