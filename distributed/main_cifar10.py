@@ -34,7 +34,7 @@ testset = torchvision.datasets.CIFAR10(
 testloader = torch.utils.data.DataLoader(
     testset, batch_size=100, shuffle=False, num_workers=0)
 # load resnet50/101/152
-net = ResNet_4out.ResNet50()
+net = ResNet.ResNet50()
 # net = ResNet.ResNet101()
 # net = ResNet.ResNet152()
 net = net.to(device)
