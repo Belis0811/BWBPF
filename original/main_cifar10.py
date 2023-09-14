@@ -6,7 +6,7 @@ import torch.backends.cudnn as cudnn
 import matplotlib.pyplot as plt
 import torchvision
 import torchvision.transforms as transforms
-import ResNet
+import ResNet10 as ResNet
 import VGG
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
