@@ -1,4 +1,4 @@
-'''Train CIFAR10 with PyTorch.'''
+'''Train Tiny ImageNet with PyTorch.'''
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -39,6 +39,7 @@ testloader = torch.utils.data.DataLoader(
 
 # load resnet101
 net = ResNet_16out.ResNet101(num_classes=200)
+# net = ResNet_16out.ResNet152(num_classes=200)
 net = net.to(device)
 if device == 'cuda':
     net = torch.nn.DataParallel(net)
@@ -128,22 +129,22 @@ optimizer_16 = optim.SGD([
     {'params': net.fc16.parameters()}
 ], lr=0.1, momentum=0.9, weight_decay=5e-4)  # update layer3 and 4
 
-scheduler_1 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_1, T_max=200)
-scheduler_2 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_2, T_max=200)
-scheduler_3 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_3, T_max=200)
-scheduler_4 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_4, T_max=200)
-scheduler_5 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_5, T_max=200)
-scheduler_6 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_6, T_max=200)
-scheduler_7 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_7, T_max=200)
-scheduler_8 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_8, T_max=200)
-scheduler_9 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_9, T_max=200)
-scheduler_10 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_10, T_max=200)
-scheduler_11 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_11, T_max=200)
-scheduler_12 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_12, T_max=200)
-scheduler_13 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_13, T_max=200)
-scheduler_14 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_14, T_max=200)
-scheduler_15 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_15, T_max=200)
-scheduler_16 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_16, T_max=200)
+scheduler_1 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_1, T_max=400)
+scheduler_2 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_2, T_max=400)
+scheduler_3 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_3, T_max=400)
+scheduler_4 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_4, T_max=400)
+scheduler_5 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_5, T_max=400)
+scheduler_6 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_6, T_max=400)
+scheduler_7 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_7, T_max=400)
+scheduler_8 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_8, T_max=400)
+scheduler_9 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_9, T_max=400)
+scheduler_10 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_10, T_max=400)
+scheduler_11 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_11, T_max=400)
+scheduler_12 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_12, T_max=400)
+scheduler_13 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_13, T_max=400)
+scheduler_14 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_14, T_max=400)
+scheduler_15 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_15, T_max=400)
+scheduler_16 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_16, T_max=400)
 
 train_losses = []
 test_losses = []
@@ -177,6 +178,10 @@ def train(epoch):
         optimizer_10.zero_grad()
         optimizer_11.zero_grad()
         optimizer_12.zero_grad()
+        optimizer_13.zero_grad()
+        optimizer_14.zero_grad()
+        optimizer_15.zero_grad()
+        optimizer_16.zero_grad()
 
         outputs, extra_1, extra_2, extra_3, extra_4, extra_5, extra_6, extra_7, extra_8, extra_9, extra_10, extra_11, extra_12, extra_13, extra_14, extra_15 = net(
             inputs)
@@ -300,6 +305,14 @@ for epoch in range(start_epoch, start_epoch + epoch_num):
     scheduler_6.step()
     scheduler_7.step()
     scheduler_8.step()
+    scheduler_9.step()
+    scheduler_10.step()
+    scheduler_11.step()
+    scheduler_12.step()
+    scheduler_13.step()
+    scheduler_14.step()
+    scheduler_15.step()
+    scheduler_16.step()
 
 # Save the trained weights
 save_path = 'resnet101_dis16_tinyImagenet.pth'
