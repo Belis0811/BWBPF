@@ -38,7 +38,7 @@ direct to 'distributed' folder
 cd distributed
 ```
 
-train VGG with 4 outputs using cifar10
+train VGG with 4 outputs using tiny ImageNet
 ```
 python main_vgg.py
 ```
