@@ -1,4 +1,4 @@
-'''Train CIFAR10 with PyTorch.'''
+'''Train Tiny ImageNet with PyTorch.'''
 import torch
 import torch.nn as nn
 import torch.optim as optim
