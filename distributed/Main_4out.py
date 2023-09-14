@@ -1,4 +1,4 @@
-'''Train CIFAR10 with PyTorch.'''
+'''Train 4 outputs Tiny ImageNet with PyTorch.'''
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -63,10 +63,10 @@ optimizer_4 = optim.SGD([
     {'params': net.layer4.parameters()},
     {'params': net.fc4.parameters()}
 ], lr=0.1, momentum=0.9, weight_decay=5e-4)  # update layer3 and 4
-scheduler_1 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_1, T_max=200)
-scheduler_2 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_2, T_max=200)
-scheduler_3 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_3, T_max=200)
-scheduler_4 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_4, T_max=200)
+scheduler_1 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_1, T_max=400)
+scheduler_2 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_2, T_max=400)
+scheduler_3 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_3, T_max=400)
+scheduler_4 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_4, T_max=400)
 
 train_losses = []
 test_losses = []
@@ -136,7 +136,7 @@ def test(epoch):
     test_losses.append(test_loss / len(testloader))
 
 
-for epoch in range(start_epoch, start_epoch + 200):
+for epoch in range(start_epoch, start_epoch + 400):
     train(epoch)
     test(epoch)
     scheduler_1.step()
