@@ -56,3 +56,9 @@ and
 ```
 python Main_12out.py
 ```
+
+## Results
+
+![alt text](misc/table.png?raw=true "Error rate of different methods")
+
+We have a better accuracy no matter in large datasets or small datasets compare to SEDONA, BP and other block-wise learning
