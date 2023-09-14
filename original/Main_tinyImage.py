@@ -1,4 +1,5 @@
-'''Train CIFAR10 with PyTorch.'''
+'''Train Tiny ImageNet with PyTorch.'''
+'''Please put tiny-imagenet dataset to root folder and use name tiny-imagenet-200 as folder name '''
 import torch
 import torch.nn as nn
 import torch.optim as optim
