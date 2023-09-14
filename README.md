@@ -13,7 +13,7 @@ To overcome the drawbacks of BP, particularly the issue of backward locking, we 
 ## Training Models
 #### 0. Preparation
 Put the Tiny ImageNet dataset into the root folder, then name the dataset folder to `tiny-imagenet-200`
-#### 1. original
+#### 1. Original
 first direct to 'original' folder by
 ```
 cd original
