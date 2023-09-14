@@ -1,4 +1,4 @@
-'''Train CIFAR10 with PyTorch.'''
+'''Train Tiny ImageNet with PyTorch.'''
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -51,75 +51,75 @@ optimizer_1 = optim.SGD([
     {'params': net.bn1.parameters()},
     {'params': net.layer1.parameters()},
     {'params': net.fc1.parameters()}
-], lr=0.1, momentum=0.9, weight_decay=5e-4)  # update first two layer
+], lr=0.1, momentum=0.9, weight_decay=5e-4)  # update first block
 
 optimizer_2 = optim.SGD([
     {'params': net.layer2.parameters()},
     {'params': net.fc2.parameters()}
-], lr=0.1, momentum=0.9, weight_decay=5e-4)  # update layer3 and 4
+], lr=0.1, momentum=0.9, weight_decay=5e-4)  # update block2
 
 optimizer_3 = optim.SGD([
     {'params': net.layer3.parameters()},
     {'params': net.fc3.parameters()}
-], lr=0.1, momentum=0.9, weight_decay=5e-4)  # update layer3 and 4
+], lr=0.1, momentum=0.9, weight_decay=5e-4)  # update block3
 
 optimizer_4 = optim.SGD([
     {'params': net.layer4.parameters()},
     {'params': net.fc4.parameters()}
-], lr=0.1, momentum=0.9, weight_decay=5e-4)  # update layer3 and 4
+], lr=0.1, momentum=0.9, weight_decay=5e-4)  # update block4
 
 optimizer_5 = optim.SGD([
     {'params': net.layer5.parameters()},
     {'params': net.fc5.parameters()}
-], lr=0.1, momentum=0.9, weight_decay=5e-4)  # update first two layer
+], lr=0.1, momentum=0.9, weight_decay=5e-4)  # update block5
 
 optimizer_6 = optim.SGD([
     {'params': net.layer6.parameters()},
     {'params': net.fc6.parameters()}
-], lr=0.1, momentum=0.9, weight_decay=5e-4)  # update layer3 and 4
+], lr=0.1, momentum=0.9, weight_decay=5e-4)  # update block6
 
 optimizer_7 = optim.SGD([
     {'params': net.layer7.parameters()},
     {'params': net.fc7.parameters()}
-], lr=0.1, momentum=0.9, weight_decay=5e-4)  # update layer3 and 4
+], lr=0.1, momentum=0.9, weight_decay=5e-4)  # update block7
 
 optimizer_8 = optim.SGD([
     {'params': net.layer8.parameters()},
     {'params': net.fc8.parameters()}
-], lr=0.1, momentum=0.9, weight_decay=5e-4)  # update layer3 and 4
+], lr=0.1, momentum=0.9, weight_decay=5e-4)  # update block8
 
 optimizer_9 = optim.SGD([
     {'params': net.layer9.parameters()},
     {'params': net.fc9.parameters()}
-], lr=0.1, momentum=0.9, weight_decay=5e-4)  # update first two layer
+], lr=0.1, momentum=0.9, weight_decay=5e-4)  # update block9
 
 optimizer_10 = optim.SGD([
     {'params': net.layer10.parameters()},
     {'params': net.fc10.parameters()}
-], lr=0.1, momentum=0.9, weight_decay=5e-4)  # update layer3 and 4
+], lr=0.1, momentum=0.9, weight_decay=5e-4)  # update block10
 
 optimizer_11 = optim.SGD([
     {'params': net.layer11.parameters()},
     {'params': net.fc11.parameters()}
-], lr=0.1, momentum=0.9, weight_decay=5e-4)  # update layer3 and 4
+], lr=0.1, momentum=0.9, weight_decay=5e-4)  # update block11
 
 optimizer_12 = optim.SGD([
     {'params': net.layer12.parameters()},
     {'params': net.fc12.parameters()}
-], lr=0.1, momentum=0.9, weight_decay=5e-4)  # update layer3 and 4
+], lr=0.1, momentum=0.9, weight_decay=5e-4)  # update block12
 
-scheduler_1 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_1, T_max=200)
-scheduler_2 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_2, T_max=200)
-scheduler_3 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_3, T_max=200)
-scheduler_4 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_4, T_max=200)
-scheduler_5 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_5, T_max=200)
-scheduler_6 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_6, T_max=200)
-scheduler_7 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_7, T_max=200)
-scheduler_8 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_8, T_max=200)
-scheduler_9 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_9, T_max=200)
-scheduler_10 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_10, T_max=200)
-scheduler_11 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_11, T_max=200)
-scheduler_12 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_12, T_max=200)
+scheduler_1 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_1, T_max=400)
+scheduler_2 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_2, T_max=400)
+scheduler_3 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_3, T_max=400)
+scheduler_4 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_4, T_max=400)
+scheduler_5 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_5, T_max=400)
+scheduler_6 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_6, T_max=400)
+scheduler_7 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_7, T_max=400)
+scheduler_8 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_8, T_max=400)
+scheduler_9 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_9, T_max=400)
+scheduler_10 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_10, T_max=400)
+scheduler_11 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_11, T_max=400)
+scheduler_12 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer_12, T_max=400)
 
 train_losses = []
 test_losses = []
