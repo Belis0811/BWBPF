@@ -18,7 +18,7 @@ first direct to 'original' folder by
 cd original
 ```
 
-run main_vgg.py to train cifar10 with VGG19
+run main_vgg.py to train tiny ImageNet with VGG19
 ```
 python main_vgg.py
 ```
