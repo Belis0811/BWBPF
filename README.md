@@ -12,7 +12,8 @@ To overcome the drawbacks of BP, particularly the issue of backward locking, we 
 
 ## Training Models
 #### 0. Preparation
-Put the Tiny ImageNet dataset into the root folder, then name the dataset folder to `tiny-imagenet-200`
+Put the Tiny ImageNet dataset into the root folder, then name the dataset folder `tiny-imagenet-200`. The dataset could be found at https://www.kaggle.com/c/tiny-imagenet/data
+Put the ImageNet dataset into the root folder, then name the dataset folder `imagenet`. Note that imagenet need some more preprocessing, please refer to https://github.com/pytorch/examples/blob/main/imagenet/extract_ILSVRC.sh for detail. The ImageNet dataset is located at https://image-net.org/, you could download it by yourself.
 #### 1. Original
 first direct to 'original' folder by
 ```
