@@ -70,3 +70,18 @@ We have a better accuracy no matter in large datasets or small datasets compare 
 Thanks to Jiaxin Lu for testing and validating the code!
 
 Special thanks to Professor Paul Bogdan and Professor Shahin Nazarian for their support!
+
+## Citation
+
+Please cite the following paper if this model assists your research:
+
+```bibtex
+@inproceedings{cheng2024unlocking,
+  title={Unlocking Deep Learning: A BP-Free Approach for Parallel Block-Wise Training of Neural Networks},
+  author={Cheng, Anzhe and Ping, Heng and Wang, Zhenkun and Xiao, Xiongye and Yin, Chenzhong and Nazarian, Shahin and Cheng, Mingxi and Bogdan, Paul},
+  booktitle={ICASSP 2024-2024 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP)},
+  pages={4235--4239},
+  year={2024},
+  organization={IEEE}
+}
+```
