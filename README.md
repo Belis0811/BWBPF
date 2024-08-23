@@ -1,6 +1,7 @@
 # BWBPF: Block-Wise BP Free learning
 Paper is implemented with official pytorch
->[Unlocking Deep Learning: A BP-Free Approach for Parallel Block-Wise Training of Neural Networks]
+>[Unlocking Deep Learning: A BP-Free Approach for Parallel Block-Wise Training of Neural Networks](https://arxiv.org/pdf/2312.13311)
+>
 >Anzhe Cheng, Zhenkun Wang, Chenzhong Yin etal.
 
 ![alt text](misc/overview_distributednn.png?raw=true "Weight updates of BWBPF.")
